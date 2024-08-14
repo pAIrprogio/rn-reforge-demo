@@ -1,0 +1,11 @@
+version: 1
+directories:
+  - name: codebase
+    path: ".."
+quick_context:
+  - glob: "**/(*.screen).tsx"
+    actions:
+      - dir: codebase
+        open:
+          - "**/{{it[0]}}.png"
+          - "src/theme.ts"

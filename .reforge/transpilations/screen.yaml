@@ -1,0 +1,63 @@
+name: screen
+temperature: 0.8
+max_tokens: 4000
+matches:
+  - "**/*.screen.tsx"
+messages:
+  - role: system
+    content: |
+      You are an experienced React Native developer.
+      You are tasked with creating a React Native screen for a given file.
+      Follow each <rule/> to create the screen.
+  - role: user
+    content: |
+      # Objective
+
+      {{@if(it.files.codebase?.length > 0)}}
+      # Context
+      Use the following files as context:
+      {{@each(it.files.codebase) => file}}
+      <file path="{{file.path}}" source="codebase">``
+      {{file.content}}
+      </file>
+      {{/each}}
+      {{/if}}
+
+      {{@if(it.images?.length > 0)}}
+      # Context images
+      Use the following images to understand the layout of the screen:
+      {{@each(it.images) => image}}{{@image(image.absolutePath)/}}{{/each}}
+      {{/if}}
+
+      # Rules
+      ## Module rules
+      <rule>
+        Instead of writing a default export, use a named export based on the file name.
+        <example>
+          <input>src/MyPage.screen.tsx</input>
+          <output>export const MyPageScreen = () => {...}</output>
+        </example>
+      </rule>
+
+      ## Data fetching rules
+      <rule>
+      Use "@tanstack/react-query" with suspence to call the query function.
+      <example>
+      import { useSuspenseQuery } from '@tanstack/react-query'
+      const { data } = useSuspenseQuery({ queryKey: ['todos'], queryFn: getTodos })
+      </example>
+      </rule>
+      <rule>Use Suspense to wait for the data to load.</rule>
+
+      ## Styling rules
+      <rule>Use Stylesheet.create to style the screen.</rule>
+      <rule>Instead of using harcoded colors and sizes, use the app theme as values for the styles.</rule>
+      <rule>Instead of `margin`, only use `padding` and `gap` to control spacing.</rule>
+
+      # Format
+      Write the {{it.files.target.path}} using a <file/> tag.
+  - role: assistant
+    content: |
+      <file path="{{it.files.target.path}}" source="codebase">
+post_scripts:
+  - ./node_modules/.bin/prettier {{it.path}} --write
